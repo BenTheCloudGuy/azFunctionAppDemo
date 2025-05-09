@@ -69,22 +69,12 @@ resource "azurerm_service_plan" "funcapp_asp" {
   sku_name            = "S1"
 }
 
-## Create Log Analytics Workspace
-resource "azurerm_log_analytics_workspace" "log_analytics" {
-  name                = "${data.azurerm_resource_group.rg.name}-loganalytics"
-  resource_group_name = data.azurerm_resource_group.rg.name
-  location            = data.azurerm_resource_group.rg.location
-  sku                 = "PerGB2018"
-  retention_in_days   = 30
-}
-
 ## Create Application Insights for FunctionApp and WebApp
 resource "azurerm_application_insights" "app_insights" {
   name                = "${data.azurerm_resource_group.rg.name}-appinsights"
   resource_group_name = data.azurerm_resource_group.rg.name
   location            = data.azurerm_resource_group.rg.location
   application_type    = "web"
-  workspace_id        = azurerm_log_analytics_workspace.log_analytics.id
 }
 
 resource "azurerm_linux_function_app" "func_app" {
@@ -104,7 +94,8 @@ resource "azurerm_linux_function_app" "func_app" {
     always_on = true
   }
   app_settings = {
-    AzureWebJobsStorage                   = ""
+    AzureWebJobsStorage                   = azurerm_storage_account.drop_storage.primary_connection_string
+    FUNCTIONS_EXTENSION_VERSION           = "~4"
     FUNCTIONS_WORKER_RUNTIME              = "powershell"
     FUNCTIONS_WORKER_RUNTIME_VERSION      = "7.4"
     APPINSIGHTS_INSTRUMENTATIONKEY        = azurerm_application_insights.app_insights.instrumentation_key
