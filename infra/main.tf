@@ -23,7 +23,7 @@ resource "azurerm_storage_account" "drop_storage" {
 
 resource "azurerm_storage_container" "drop_container" {
   name                  = var.container_name
-  storage_account_id    = azurerm_storage_account.storage.id
+  storage_account_id    = azurerm_storage_account.drop_storage.id
   container_access_type = "private"
 }
 
