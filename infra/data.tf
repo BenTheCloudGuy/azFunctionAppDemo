@@ -1,6 +1,6 @@
 # Collect data about the current client configuration
 data "azurerm_client_config" "current" {
-    provider = azurerm
+  provider = azurerm
 }
 
 # Collect data about the current Resource Group
