@@ -104,10 +104,9 @@ resource "azurerm_linux_function_app" "func_app" {
     always_on = true
   }
   app_settings = {
-    AzureWebJobsStorage                   = azurerm_storage_account.drop_storage.primary_connection_string
-    FUNCTIONS_EXTENSION_VERSION           = "~4"
+    AzureWebJobsStorage                   = ""
     FUNCTIONS_WORKER_RUNTIME              = "powershell"
-    FUNCTIONS_WORKER_RUNTIME_VERSION      = "~7.4"
+    FUNCTIONS_WORKER_RUNTIME_VERSION      = "7.4"
     APPINSIGHTS_INSTRUMENTATIONKEY        = azurerm_application_insights.app_insights.instrumentation_key
     APPLICATIONINSIGHTS_CONNECTION_STRING = azurerm_application_insights.app_insights.connection_string
   }
