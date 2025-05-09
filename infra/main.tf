@@ -63,7 +63,7 @@ resource "azurerm_storage_management_policy" "archive_policy" {
 
 ## Create App Service Plan for FunctionApp and WebApp
 resource "azurerm_service_plan" "funcapp_asp" {
-  name                = "${azurerm_resource_group.main.name}-asp"
+  name                = "${data.azurerm_resource_group.rg.name}-asp"
   resource_group_name = data.azurerm_resource_group.rg.name
   location            = data.azurerm_resource_group.rg.location
   os_type             = "Linux"
@@ -72,14 +72,14 @@ resource "azurerm_service_plan" "funcapp_asp" {
 
 ## Create Application Insights for FunctionApp and WebApp
 resource "azurerm_application_insights" "app_insights" {
-  name                = "${azurerm_resource_group.main.name}-appinsights"
+  name                = "${data.azurerm_resource_group.rg.name}-appinsights"
   resource_group_name = data.azurerm_resource_group.rg.name
   location            = data.azurerm_resource_group.rg.location
   application_type    = "web"
 }
 
 resource "azurerm_linux_function_app" "func_app" {
-  name                       = "${azurerm_resource_group.main.name}-funcapp"
+  name                       = "${data.azurerm_resource_group.rg.name}-funcapp"
   resource_group_name        = data.azurerm_resource_group.rg.name
   location                   = data.azurerm_resource_group.rg.location
   service_plan_id            = azurerm_service_plan.funcapp_asp.id
