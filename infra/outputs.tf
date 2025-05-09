@@ -3,5 +3,5 @@ output "log_analytics_workspace_id" {
 }
 
 output "FunctionAppName" {
-  value = azurerm_function_app.functionapp.name
+  value = azurerm_linux_function_app.func_app.name
 }
