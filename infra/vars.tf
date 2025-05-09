@@ -1,4 +1,3 @@
-
 variable "resource_group_id" {
   description = "The ResourceId ofo the Resource Group that will be imported into the Terraform State so it can be managed by Terraform."
   type        = string
@@ -16,6 +15,11 @@ variable "storage_account_name" {
 
 variable "container_name" {
   description = "The name of the container within the Storage Account."
+  type        = string
+}
+
+variable "archive_container_name" {
+  description = "The name of the archive container within the Storage Account."
   type        = string
 }
 
