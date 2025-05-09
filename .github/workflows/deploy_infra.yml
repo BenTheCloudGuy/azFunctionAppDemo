@@ -1,0 +1,45 @@
+name: Deploy Infrastructure with Terraform
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'infra/**'
+      - .github/workflows/deploy-infra.yml
+  pull_request:
+
+jobs:
+  deploy:
+    name: Terraform Plan and Apply
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v1
+        with:
+            terraform_version: 1.11.4
+
+      - name: Terraform Init
+        run: terraform init
+        working-directory: infra/
+
+      - name: Terraform Validate
+        run: terraform validate
+        working-directory: infra/
+    
+      - name: Terraform Format
+        run: terraform fmt -check
+        working-directory: infra/
+
+      - name: Terraform Plan
+        run: terraform plan -input=false -var-file="deploy.tfvars"
+        working-directory: infra/
+
+      - name: Terraform Apply
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: terraform apply -auto-approve -input=false -var-file="deploy.tfvars"
+        working-directory: infra/

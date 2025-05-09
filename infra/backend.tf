@@ -1,22 +1,10 @@
 terraform {
-  required_version = "1.11.4"
   backend "azurerm" {
-    resource_group_name  = "stazgreenhamster01"
-    storage_account_name = "stazgreenhamster01"
+    resource_group_name  = "cglabs-azfuncdemo"
+    storage_account_name = "cglabstffuncdemosa"
     container_name       = "tfstate"
-    key                  = "greenhamster.tfstate" #Only change location after infrastructure/tenant/subscription/region/resource group
+    key                  = "funcApp.demo.tfstate"
+    tenant_id            = "477bacc4-4ada-4431-940b-b91cf6cb3fd4"
     use_azuread_auth     = true
   }
-  required_providers {
-    azurerm = {
-      source  = "hashicorp/azurerm"
-      version = ">= 4.27.0"
-    }
-  }
-}
-
-
-provider "azurerm" {
-  features {}
-  subscription_id = "26e08660-7282-4a46-8a5f-790fafe6100b"
 }

@@ -1,7 +1,7 @@
-variable "location" {
-  description = "The Azure region where resources will be deployed."
+
+variable "resource_group_id" {
+  description = "The ResourceId ofo the Resource Group that will be imported into the Terraform State so it can be managed by Terraform."
   type        = string
-  default     = "northcentralus"
 }
 
 variable "managed_identity_name" {

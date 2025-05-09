@@ -1,55 +1,83 @@
-# Terraform Azure Workspace
+# Terraform Workspace #
 
-This project is designed to deploy various Azure resources using Terraform. The resources include a User Defined Managed Identity, a Storage Account with a container, an App Service Plan, a Web Frontend (Python), a Function App (PowerShell), and SQL.
+Detailed description of Terraform Templates go here!! 
 
-## Project Structure
+### backend.tf ###
 
-- `main.tf`: Contains the main configuration for deploying the Azure resources.
-- `vars.tf`: Defines the variables required for the Terraform configuration.
-- `outputs.tf`: Specifies the outputs of the Terraform deployment.
-- `providers.tf`: Configures the required providers for the Terraform project.
-- `README.md`: Documentation for the project.
+The purpose of backend.tf is to define how Terraform manages and stores its state data. Terraform uses persisted state data to track the resources it provisions and manages. By configuring a backend, such as AzureRM, you enable Terraform to store state remotely in a secure and shared location. This approach allows multiple team members to access and collaborate on the same infrastructure resources simultaneously, ensuring consistency, preventing conflicts, and facilitating effective teamwork.  
 
-## Getting Started
-
-### Prerequisites
-
-- Ensure you have [Terraform](https://www.terraform.io/downloads.html) installed.
-- An Azure account with the necessary permissions to create resources.
-
-### Initialization
-
-1. Navigate to the project directory:
-   ```
-   cd terraform-azure-workspace
-   ```
-
-2. Initialize the Terraform workspace:
-   ```
-   terraform init
-   ```
-
-### Applying the Configuration
-
-To deploy the resources, run the following command:
+```json
+terraform {
+  backend "azurerm" {
+    resource_group_name  = "<resource_group_name>"
+    storage_account_name = "<storage_account_name_for_tfstate>"
+    container_name       = "tfstate"
+    key                  = "funcAppDemo.tfstate>"
+    tenant_id            = "<tenant_id>"
+    use_azuread_auth     = true
+  }
+}
 ```
-terraform apply
+> **NOTE**  
+> Learn More: https://developer.hashicorp.com/terraform/language/backend
+
+### provider.tf ###
+
+The purpose of provider.tf is to define and configure the providers Terraform uses to interact with external systems, such as Azure. Providers enable Terraform to provision and manage resources within specific cloud platforms or services. Before Terraform can utilize these providers, configurations must explicitly declare required providers, specifying details such as source and version constraints. This ensures Terraform can automatically install and manage the correct provider versions. Additionally, provider configurations, such as Azure regions, subscription IDs, or authentication methods, must be defined clearly, enabling Terraform to interact effectively with the target cloud environment.
+
+```json
+terraform {
+    required_version = "~> 1.11.0"
+
+    required_providers {
+        azapi = {
+            source  = "azure/azapi"
+            version = "~>2.3.0"
+        }
+        azurerm = {
+            source  = "hashicorp/azurerm"
+            version = "~>4.25.0"
+        }
+        random = {
+            source  = "hashicorp/random"
+            version = "~>3.7.0"
+        }
+    }
+}
+
+provider "azurerm" {
+    features {}
+    subscription_id = "<subscription_id>"
+}
 ```
-Review the plan and type `yes` to confirm the deployment.
 
-### Outputs
+> **NOTE**  
+> Learn More: https://developer.hashicorp.com/terraform/language/providers/configuration
 
-After the deployment is complete, Terraform will display the outputs defined in `outputs.tf`, which may include resource IDs and connection strings.
+### locals.tf ###
 
-### Cleanup
+Purpose of locals.tf
 
-To remove the deployed resources, run:
+```json
+locals {
+  location            = "northcentralus"
+  resource_group_name = "green-hamster"
+}
 ```
-terraform destroy
+
+### import.tf ###
+
+Purpose of import.tf
+
+```json
+# This will import the resource group and allow you to manage it with this Terraform configuration.
+import {
+  id = var.resource_group_id
+  to = azurerm_resource_group.main
+}
 ```
-Confirm the action by typing `yes`.
 
-## Notes
 
-- Ensure that you have configured your Azure credentials properly to allow Terraform to authenticate and create resources.
-- Modify the `vars.tf` file to customize resource names and configurations as needed.
+### vars.tf ###
+
+Purpose of the vars.tf
