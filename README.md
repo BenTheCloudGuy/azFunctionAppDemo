@@ -14,7 +14,7 @@ Typically you would want to create your Resource Group as part of the terraform 
 AZURE_SUBSCRIPTION_ID='<subscription_id>'
 RESOURCE_GROUP_NAME='<NAME_OF_RG>'
 STORAGE_ACCOUNT_NAME='<NAME_OF_STORAGE_ACCOUNT_NAME>'
-CONTAINER_NAME='<NAME_OF_CONTAINER>'
+CONTAINER_NAME='tfstate'
 AZURE_SPN_NAME='<NAME_OF_SPN>'
 
 az login
@@ -22,40 +22,29 @@ az login
 
 2. Create SPN and assign it OWNER to our Target ResourceGroup. This is required since we are using Terraform to deploy resources and configure RBAC on those resources. 
 ```bash
-azFuncDemoSPN=$(az ad sp create-for-rbac --name $AZURE_SPN_NAME --role Owner --scopes /subscriptions/$AZURE_SUBSCRIPTION_ID/resourceGroups/$RESOURCE_GROUP_NAME)
+azFuncDemoSPN=$(az ad sp create-for-rbac --name $AZURE_SPN_NAME --role Owner --scopes /subscriptions/$AZURE_SUBSCRIPTION_ID/resourceGroups/$RESOURCE_GROUP_NAME --sdk-auth)
 ```
 
 Example of output of azFuncDemoSPN:
 ```json
-{
-  "appId": "...",
-  "displayName": "azFuncDemoSPN",
-  "password": "...",
-  "tenant": "..."
-}
+{ "clientId": "BLANKED", "clientSecret": "BLANKED", "subscriptionId": "BLANKED", "tenantId": "BLANKED", "activeDirectoryEndpointUrl": "https://login.microsoftonline.com", "resourceManagerEndpointUrl": "https://management.azure.com/", "activeDirectoryGraphResourceId": "https://graph.windows.net/", "sqlManagementEndpointUrl": "https://management.core.windows.net:8443/", "galleryEndpointUrl": "https://gallery.azure.com/", "managementEndpointUrl": "https://management.core.windows.net/" }
 ```
 
 3. Extract Azure Variables from SPN:
 ```bash
 # Extract values from azFuncDemoSPN and set environment variables
-export AZURE_CLIENT_ID=$(echo $azFuncDemoSPN | jq -r '.appId')
-export AZURE_TENANT_ID=$(echo $azFuncDemoSPN | jq -r '.tenant')
-export AZURE_CLIENT_SECRET=$(echo $azFuncDemoSPN | jq -r '.password')
+export AZURE_CLIENT_ID=$(echo $azFuncDemoSPN | jq -r '.clientId')
+export AZURE_TENANT_ID=$(echo $azFuncDemoSPN | jq -r '.tenantId')
 export AZURE_OBJECT_ID=$(az ad sp show --id $AZURE_CLIENT_ID --query 'id' -o tsv)
 export AZURE_SUBSCRIPTION_ID=$(az account show | jq -r '.id') ## Pulls Subscription via AzCLI Context.
 ```
 
-4. Create secrets for AZURE_CLIENT_ID, AZURE_TENANT_ID, and AZURE_SUBSCRIPTION_ID, AZURE_CLIENT_SECRET.Use these values from your Azure Active Directory application for your GitHub secrets: ($GITHUB_TOKEN requires additional permissions to manage secrets at the repo via cli). Alternatively you can just create them in the GitHub Repo under Settings -> Secrets and Variables -> Actions. Then Repository Secrets. 
+4. Create secrets for AzureCLI Auth (Azure_CREDENTIALS):  
+ ($GITHUB_TOKEN requires additional permissions to manage secrets at the repo via cli). Alternatively you can just create them in the GitHub Repo under Settings -> Secrets and Variables -> Actions. Then Repository Secrets. 
 ```bash
 # Create GitHub secrets
-gh secret set AZURE_CLIENT_ID --body "$AZURE_CLIENT_ID"
-gh secret set AZURE_TENANT_ID --body "$AZURE_TENANT_ID"
-gh secret set AZURE_CLIENT_SECRET --body "$AZURE_CLIENT_SECRET"
-gh secret set AZURE_SUBSCRIPTION_ID --body "$AZURE_SUBSCRIPTION_ID"
+gh secret set AZURE_CREDENTIALS --body "$azFuncDemoSPN"
 ```
-
-It should look like this in the GitHub Portal:
-![gh_secrets](media/gh_secrets.jpg)
 
 >**NOTE**  
 > To create App Registrations or Service Principal Names (SPNs) in Microsoft Entra (Azure Active Directory), you typically need one of the following roles:  
