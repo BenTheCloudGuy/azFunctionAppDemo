@@ -1,4 +1,3 @@
-
 ## Create Managed Identity for Resources to Use and Assign Role(s) to it
 resource "azurerm_user_assigned_identity" "identity" {
   name                = var.managed_identity_name
