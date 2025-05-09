@@ -1,7 +1,7 @@
 name: Deploy Azure Functions
 
 env:
-  AZURE_FUNCTIONAPP_NAME: 'functions'       # set this to your function app name on Azure
+  AZURE_FUNCTIONAPP_NAME: 'cglabs-azfuncdemo-funcapp' # set this to your function app name on Azure
   AZURE_FUNCTIONAPP_PACKAGE_PATH: 'functions/.'       # set this to the path to your function app project, defaults to the repository root
 
 on:
