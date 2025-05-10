@@ -1,7 +1,7 @@
 {
   "bindings": [
     {
-      "name": "TriggerMetadata",
+      "name": "blobObject",
       "type": "blobTrigger",
       "direction": "in",
       "path": "filedrop/{name}",
