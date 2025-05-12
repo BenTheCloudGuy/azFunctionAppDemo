@@ -21,6 +21,8 @@ if ($env:MSI_SECRET) {
     Connect-AzAccount -Identity -ErrorAction SilentlyContinue
 }
 
+
+
 # Uncomment the next line to enable legacy AzureRm alias in Azure PowerShell.
 # Enable-AzureRmAlias
 
