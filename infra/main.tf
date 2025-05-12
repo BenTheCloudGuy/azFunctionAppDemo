@@ -5,11 +5,25 @@ resource "azurerm_user_assigned_identity" "identity" {
   location            = data.azurerm_resource_group.rg.location
 }
 
-resource "azurerm_role_assignment" "identity_blob_data_contributor" {
+## Following 3 Roles are required for the FunctionApp to access the Storage Account
+resource "azurerm_role_assignment" "identity_blob_data_owner" {
   principal_id         = azurerm_user_assigned_identity.identity.principal_id
-  role_definition_name = "Storage Blob Data Contributor"
+  role_definition_name = "Storage Blob Data Owner"
   scope                = data.azurerm_resource_group.rg.id
 }
+
+resource "azurerm_role_assignment" "identity_queue_data_contributor" {
+  principal_id         = azurerm_user_assigned_identity.identity.principal_id
+  role_definition_name = "Storage Queue Data Contributor"
+  scope                = data.azurerm_resource_group.rg.id
+}
+
+resource "azurerm_role_assignment" "identity_storage_account_contributor" {
+  principal_id         = azurerm_user_assigned_identity.identity.principal_id
+  role_definition_name = "Storage Account Contributor"
+  scope                = data.azurerm_resource_group.rg.id
+}
+
 
 ## Create Storage Account and Containers
 resource "azurerm_storage_account" "drop_storage" {
