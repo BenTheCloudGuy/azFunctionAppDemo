@@ -92,7 +92,7 @@ resource "azurerm_linux_function_app" "func_app" {
   functions_extension_version = "~4"
   identity {
 
-    type = "UserAssigned,SystemAssigned"
+    type = "SystemAssigned, UserAssigned"
     identity_ids = [
       azurerm_user_assigned_identity.identity.id,
     ]
