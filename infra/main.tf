@@ -146,17 +146,26 @@ resource "azurerm_role_assignment" "sami_blob_data_owner" {
   principal_id         = azurerm_linux_function_app.func_app.identity[0].principal_id
   role_definition_name = "Storage Blob Data Owner"
   scope                = data.azurerm_resource_group.rg.id
+  # Explicit dependency on the Function App
+  depends_on = [azurerm_linux_function_app.func_app]
 }
+
 
 resource "azurerm_role_assignment" "sami_queue_data_contributor" {
   principal_id         = azurerm_linux_function_app.func_app.identity[0].principal_id
   role_definition_name = "Storage Queue Data Contributor"
   scope                = data.azurerm_resource_group.rg.id
+  # Explicit dependency on the Function App
+  depends_on = [azurerm_linux_function_app.func_app]
 }
+
 
 resource "azurerm_role_assignment" "sami_storage_account_contributor" {
   principal_id         = azurerm_linux_function_app.func_app.identity[0].principal_id
   role_definition_name = "Storage Account Contributor"
   scope                = data.azurerm_resource_group.rg.id
+  # Explicit dependency on the Function App
+  depends_on = [azurerm_linux_function_app.func_app]
 }
+
 
