@@ -135,4 +135,4 @@ resource "azurerm_linux_function_app" "func_app" {
     APPLICATIONINSIGHTS_CONNECTION_STRING         = azurerm_application_insights.app_insights.connection_string
   }
 }
-## https://learn.microsoft.com/en-us/azure/azure-functions/functions-app-settings#functions_extension_version
+
