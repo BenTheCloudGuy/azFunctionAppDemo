@@ -102,30 +102,37 @@ resource "azurerm_application_insights" "app_insights" {
 }
 
 resource "azurerm_linux_function_app" "func_app" {
-  name                       = "${data.azurerm_resource_group.rg.name}-funcapp"
-  resource_group_name        = data.azurerm_resource_group.rg.name
-  location                   = data.azurerm_resource_group.rg.location
-  service_plan_id            = azurerm_service_plan.funcapp_asp.id
-  storage_account_name       = azurerm_storage_account.drop_storage.name
-  storage_account_access_key = azurerm_storage_account.drop_storage.primary_access_key
+  name                        = "${data.azurerm_resource_group.rg.name}-funcapp"
+  resource_group_name         = data.azurerm_resource_group.rg.name
+  location                    = data.azurerm_resource_group.rg.location
+  service_plan_id             = azurerm_service_plan.funcapp_asp.id
+  storage_account_name        = azurerm_storage_account.drop_storage.name
+  storage_account_access_key  = azurerm_storage_account.drop_storage.primary_access_key
+  https_only                  = true
+  functions_extension_version = "~4"
   identity {
+
     type = "UserAssigned"
     identity_ids = [
       azurerm_user_assigned_identity.identity.id,
     ]
   }
   site_config {
-    always_on = true
+    always_on                              = true
+    application_insights_connection_string = azurerm_application_insights.app_insights.connection_string
+    application_insights_key               = azurerm_application_insights.app_insights.instrumentation_key
+    application_stack {
+      powershell_core_version = "7.4"
+    }
   }
   app_settings = {
     AzureWebJobsStorage                           = azurerm_storage_account.drop_storage.primary_connection_string
     AzureWebJobsStorage__accountName              = azurerm_storage_account.drop_storage.name
     AzureWebJobsStorage_managedIdentityResourceId = azurerm_user_assigned_identity.identity.id
-    FUNCTIONS_EXTENSION_VERSION                   = "~4"
     FUNCTIONS_WORKER_RUNTIME                      = "powershell"
     FUNCTIONS_WORKER_RUNTIME_VERSION              = "7.4"
     APPINSIGHTS_INSTRUMENTATIONKEY                = azurerm_application_insights.app_insights.instrumentation_key
     APPLICATIONINSIGHTS_CONNECTION_STRING         = azurerm_application_insights.app_insights.connection_string
   }
 }
-## https://learn.microsoft.com/en-us/azure/azure-functions/functions-app-settings#functions_extension_version
+
