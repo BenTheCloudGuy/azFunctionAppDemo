@@ -126,13 +126,17 @@ resource "azurerm_linux_function_app" "func_app" {
     }
   }
   app_settings = {
-    AzureWebJobsStorage                           = azurerm_storage_account.drop_storage.primary_connection_string
-    AzureWebJobsStorage__accountName              = azurerm_storage_account.drop_storage.name
-    AzureWebJobsStorage_managedIdentityResourceId = azurerm_user_assigned_identity.identity.id
-    FUNCTIONS_WORKER_RUNTIME                      = "powershell"
-    FUNCTIONS_WORKER_RUNTIME_VERSION              = "7.4"
-    APPINSIGHTS_INSTRUMENTATIONKEY                = azurerm_application_insights.app_insights.instrumentation_key
-    APPLICATIONINSIGHTS_CONNECTION_STRING         = azurerm_application_insights.app_insights.connection_string
+    AzureWebJobsStorage__accountName               = azurerm_storage_account.drop_storage.name
+    AzureWebJobsStorage__blobServiceUri            = azurerm_storage_account.drop_storage.primary_blob_endpoint
+    AzureWebJobsStorage__queueServiceUri           = azurerm_storage_account.drop_storage.primary_queue_endpoint
+    AzureWebJobsStorage__tableServiceUri           = azurerm_storage_account.drop_storage.primary_table_endpoint
+    AzureWebJobsStorage__managedIdentityResourceId = azurerm_user_assigned_identity.identity.id
+    FUNCTIONS_WORKER_RUNTIME                       = "powershell"
+    FUNCTIONS_WORKER_RUNTIME_VERSION               = "7.4"
+    APPINSIGHTS_INSTRUMENTATIONKEY                 = azurerm_application_insights.app_insights.instrumentation_key
+    APPLICATIONINSIGHTS_CONNECTION_STRING          = azurerm_application_insights.app_insights.connection_string
+    archive_container_name                         = azurerm_storage_container.archive_container.name
+
   }
 }
 
