@@ -4,12 +4,8 @@ on:
   push:
     branches:
       - main
-    paths:
-      - 'infra/**'
-      - '.github/workflows/deploy_infra.yml'
   pull_request:
-    paths:
-      - 'infra/**'
+   
 
 jobs:
   terraform:
@@ -50,10 +46,20 @@ jobs:
       - name: Save Plan Output
         run: echo "TF_PLAN_PATH=tfplan" >> $GITHUB_ENV
 
-
       - name: Terraform Apply
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         run: terraform apply -input=false -auto-approve $TF_PLAN_PATH
         working-directory: infra/
 
-         
+      - name: Collect Terraform Outputs and Store as GitHub Repository Variables
+        id: set_repo_variables
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          FUNCTION_APP_NAME=$(terraform output -raw FunctionAppName)
+          FUNC_RESOURCE_GROUP=$(terraform output -raw resource_group_name)
+
+          # Set repository variables using GitHub CLI
+          gh variable set FUNCTION_APP_NAME --body "$FUNCTION_APP_NAME"
+          gh variable set FUNC_RESOURCE_GROUP --body "$FUNC_RESOURCE_GROUP"
+        working-directory: infra/
