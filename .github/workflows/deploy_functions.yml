@@ -1,8 +1,8 @@
 name: Deploy Azure Functions
 
 env:
-  AZURE_FUNCTIONAPP_NAME: 'cglabs-azfuncdemo-funcapp' # set this to your function app name on Azure
-  AZURE_FUNCTIONAPP_PACKAGE_PATH: 'functions/.'       # set this to the path to your function app project, defaults to the repository root
+  AZURE_FUNCTIONAPP_PACKAGE_PATH: 'functions/.'       
+  FUNCTION_APP_PACKAGE_NAME: 'functionapp.zip'  
 
 on:
   workflow_run:
@@ -15,18 +15,37 @@ jobs:
   deploy:
     name: Deploy Azure Functions
     runs-on: ubuntu-latest
-    if: ${{ github.event_name == 'push' && success() }}
+    if: github.event.workflow_run.conclusion == 'success' && contains(github.event.workflow_run.head_commit.message, 'functions/')
 
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      - name: Deploy Functions
-        uses: Azure/functions-action@v1
-        id: fa
+      - name: Download Terraform Outputs Artifact
+        uses: actions/download-artifact@v4
         with:
-          app-name: ${{ env.AZURE_FUNCTIONAPP_NAME }}
-          package: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
-          publish-profile: ${{ secrets.AZURE_FUNCTIONAPP_PUBLISH_PROFILE }}
+          name: terraform-outputs
 
+      - name: Parse Terraform Outputs
+        id: parse_outputs
+        run: |
+          FUNCTION_APP_NAME=$(jq -r '.FunctionAppName.value' terraform-outputs.json)
+          FUNC_RESOURCE_GROUP=$(jq -r '.resource_group_name.value' terraform-outputs.json)
+          echo "FUNCTION_APP_NAME=$FUNCTION_APP_NAME" >> $GITHUB_ENV
+          echo "FUNC_RESOURCE_GROUP=$FUNC_RESOURCE_GROUP" >> $GITHUB_ENV
 
+      - name: Log in to Azure
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Zip Function App Contents
+        run: |
+          zip -r $FUNCTION_APP_PACKAGE_NAME $AZURE_FUNCTIONAPP_PACKAGE_PATH
+
+      - name: Publish Azure Function
+        run: |
+          az functionapp deployment source config-zip \
+            --name $FUNCTION_APP_NAME \
+            --resource-group $FUNC_RESOURCE_GROUP \
+            --src $FUNCTION_APP_PACKAGE_NAME

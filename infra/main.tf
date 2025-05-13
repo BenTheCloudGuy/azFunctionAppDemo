@@ -83,14 +83,14 @@ resource "azurerm_application_insights" "app_insights" {
 
 ## Update Function App to Windows
 resource "azurerm_windows_function_app" "func_app" {
-  name                        = "${data.azurerm_resource_group.rg.name}-funcapp"
-  resource_group_name         = data.azurerm_resource_group.rg.name
-  location                    = data.azurerm_resource_group.rg.location
-  service_plan_id             = azurerm_service_plan.funcapp_asp.id
-  storage_account_name        = azurerm_storage_account.drop_storage.name
-  storage_account_access_key  = azurerm_storage_account.drop_storage.primary_access_key
-  https_only                  = true
-  functions_extension_version = "~4"
+  name                          = "${data.azurerm_resource_group.rg.name}-funcapp"
+  resource_group_name           = data.azurerm_resource_group.rg.name
+  location                      = data.azurerm_resource_group.rg.location
+  service_plan_id               = azurerm_service_plan.funcapp_asp.id
+  storage_account_name          = azurerm_storage_account.drop_storage.name
+  storage_uses_managed_identity = true
+  https_only                    = true
+  functions_extension_version   = "~4"
   identity {
     type = "SystemAssigned"
   }
@@ -113,6 +113,8 @@ resource "azurerm_windows_function_app" "func_app" {
     archive_container_name                         = azurerm_storage_container.archive_container.name
   }
 }
+
+
 
 ## Following 3 Roles are required for the FunctionApp to access the Storage Account
 ## User Assigned Identity
