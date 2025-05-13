@@ -1,12 +1,12 @@
 {
   "bindings": [
     {
-      "name": "blobObject",
+      "name": "InputBlob",
       "type": "blobTrigger",
       "direction": "in",
       "path": "filedrop/{name}",
-      "connection": "AzureWebJobsStorage"
+      "source": "EventGrid",
+      "connection": ""
     }
   ]
 }
-
