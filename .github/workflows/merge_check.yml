@@ -30,7 +30,7 @@ jobs:
         run: terraform init
         working-directory: infra/
 
-      - name: Terraform Validate
+      - name: Terraform Validateclear
         run: terraform validate
         working-directory: infra/
 
