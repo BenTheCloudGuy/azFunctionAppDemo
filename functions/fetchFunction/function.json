@@ -2,7 +2,7 @@
   "bindings": [
     {
       "name": "InputBlob",
-      "type": "blobTrigger",
+      "type": "eventGridTrigger",
       "direction": "in",
       "path": "filedrop/{name}",
       "source": "EventGrid",

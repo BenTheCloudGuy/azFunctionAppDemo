@@ -5,12 +5,11 @@ env:
   AZURE_FUNCTIONAPP_PACKAGE_PATH: 'functions/.'       # set this to the path to your function app project, defaults to the repository root
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - 'functions/**'
-      - '.github/workflows/deploy_functions.yml'
+  workflow_run:
+    workflows:
+      - Deploy Infrastructure with Terraform
+    types:
+      - completed
 
 jobs:
   deploy:

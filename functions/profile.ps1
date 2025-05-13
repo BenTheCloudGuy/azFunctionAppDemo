@@ -9,21 +9,31 @@
 # You can define helper functions, run commands, or specify environment variables
 # NOTE: any variables defined that are not environment variables will get reset after the first execution
 
-<#   ### Authenticate with Azure PowerShell using MSI. ###
+# filepath: /workspaces/azFunctionAppDemo/functions/profile.ps1
 
-This will authenticate as the System Managed Identity by default on any Function Running under this FunctionApp
-Override this per function by Logging out and re-connecting using User Managed Identity in the Body of each Function that Requires it.
-This SMI is configured as a Global Reader to the CGLABS Tenant and GET/LIST to CGLABS-AUTOMATION-KV (KeyVault) where Automation Secrets/Certs/Keys will be stored
+try {
+    # Check if the Az module is installed
+    if (-not (Get-Module -ListAvailable -Name Az)) {
+        Write-Verbose "Az module not found. Installing..."
+        Install-Module Az -Force -Scope CurrentUser
+    } else {
+        Write-Verbose "Az module is already installed."
+    }
 
-#>
-if ($env:MSI_SECRET) {
+    # Import the Az module
+    if (-not (Get-Module -Name Az)) {
+        Write-Verbose "Importing Az module..."
+        Import-Module Az -ErrorAction Stop
+    }
+
+    # Disable context autosave and authenticate using MSI
     Disable-AzContextAutosave -Scope Process | Out-Null
-    Connect-AzAccount -Identity -ErrorAction SilentlyContinue
+    if ($env:MSI_SECRET) {
+        Connect-AzAccount -Identity -ErrorAction SilentlyContinue
+    }
+} catch {
+    Write-Error "Failed to load Az module or authenticate: $_"
 }
 
-
-
-# Uncomment the next line to enable legacy AzureRm alias in Azure PowerShell.
-# Enable-AzureRmAlias
 
 # You can also define functions or aliases that can be referenced in any of your PowerShell functions.
