@@ -4,7 +4,7 @@ output "log_analytics_workspace_id" {
 
 output "resource_group_name" {
   value = data.azurerm_resource_group.rg.name
-} 
+}
 
 output "FunctionAppName" {
   value = azurerm_windows_function_app.func_app.name
