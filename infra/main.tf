@@ -59,7 +59,7 @@ resource "azurerm_service_plan" "funcapp_asp" {
   name                = "${data.azurerm_resource_group.rg.name}-asp"
   resource_group_name = data.azurerm_resource_group.rg.name
   location            = data.azurerm_resource_group.rg.location
-  os_type             = "Linux"
+  os_type             = "Windows" # Changed to Windows
   sku_name            = "S1"
 }
 
@@ -81,7 +81,8 @@ resource "azurerm_application_insights" "app_insights" {
   workspace_id        = azurerm_log_analytics_workspace.log_analytics.id
 }
 
-resource "azurerm_linux_function_app" "func_app" {
+## Update Function App to Windows
+resource "azurerm_windows_function_app" "func_app" {
   name                        = "${data.azurerm_resource_group.rg.name}-funcapp"
   resource_group_name         = data.azurerm_resource_group.rg.name
   location                    = data.azurerm_resource_group.rg.location
@@ -91,19 +92,13 @@ resource "azurerm_linux_function_app" "func_app" {
   https_only                  = true
   functions_extension_version = "~4"
   identity {
-
-    type = "SystemAssigned, UserAssigned"
-    identity_ids = [
-      azurerm_user_assigned_identity.identity.id,
-    ]
+    type = "SystemAssigned"
   }
   site_config {
     always_on                              = true
     application_insights_connection_string = azurerm_application_insights.app_insights.connection_string
     application_insights_key               = azurerm_application_insights.app_insights.instrumentation_key
-    application_stack {
-      powershell_core_version = "7.4"
-    }
+
   }
   app_settings = {
     AzureWebJobsStorage__accountName               = azurerm_storage_account.drop_storage.name
@@ -116,7 +111,6 @@ resource "azurerm_linux_function_app" "func_app" {
     APPINSIGHTS_INSTRUMENTATIONKEY                 = azurerm_application_insights.app_insights.instrumentation_key
     APPLICATIONINSIGHTS_CONNECTION_STRING          = azurerm_application_insights.app_insights.connection_string
     archive_container_name                         = azurerm_storage_container.archive_container.name
-
   }
 }
 
@@ -143,29 +137,29 @@ resource "azurerm_role_assignment" "uami_storage_account_contributor" {
 ## Following 3 Roles are required for the FunctionApp to access the Storage Account
 ### FunctionApp System Assigned Identity
 resource "azurerm_role_assignment" "sami_blob_data_owner" {
-  principal_id         = azurerm_linux_function_app.func_app.identity[0].principal_id
+  principal_id         = azurerm_windows_function_app.func_app.identity[0].principal_id
   role_definition_name = "Storage Blob Data Owner"
   scope                = data.azurerm_resource_group.rg.id
   # Explicit dependency on the Function App
-  depends_on = [azurerm_linux_function_app.func_app]
+  depends_on = [azurerm_windows_function_app.func_app]
 }
 
 
 resource "azurerm_role_assignment" "sami_queue_data_contributor" {
-  principal_id         = azurerm_linux_function_app.func_app.identity[0].principal_id
+  principal_id         = azurerm_windows_function_app.func_app.identity[0].principal_id
   role_definition_name = "Storage Queue Data Contributor"
   scope                = data.azurerm_resource_group.rg.id
   # Explicit dependency on the Function App
-  depends_on = [azurerm_linux_function_app.func_app]
+  depends_on = [azurerm_windows_function_app.func_app]
 }
 
 
 resource "azurerm_role_assignment" "sami_storage_account_contributor" {
-  principal_id         = azurerm_linux_function_app.func_app.identity[0].principal_id
+  principal_id         = azurerm_windows_function_app.func_app.identity[0].principal_id
   role_definition_name = "Storage Account Contributor"
   scope                = data.azurerm_resource_group.rg.id
   # Explicit dependency on the Function App
-  depends_on = [azurerm_linux_function_app.func_app]
+  depends_on = [azurerm_windows_function_app.func_app]
 }
 
 
