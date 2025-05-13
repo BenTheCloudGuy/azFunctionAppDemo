@@ -4,8 +4,7 @@ on:
   push:
     branches:
       - main
-  pull_request:
-   
+
 jobs:
   terraform:
     name: Terraform Workflow
@@ -46,7 +45,6 @@ jobs:
         run: echo "TF_PLAN_PATH=tfplan" >> $GITHUB_ENV
 
       - name: Terraform Apply
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         run: terraform apply -input=false -auto-approve $TF_PLAN_PATH
         working-directory: infra/
 
