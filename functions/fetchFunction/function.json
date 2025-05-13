@@ -5,8 +5,8 @@
       "type": "blobTrigger",
       "direction": "in",
       "path": "filedrop/{name}",
-      "connection": "AzureWebJobsStorage"
+      "source": "EventGrid",
+      "connection": ""
     }
   ]
 }
-
