@@ -24,6 +24,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: terraform-outputs
+          path: .
 
       - name: Parse Terraform Outputs
         id: parse_outputs
