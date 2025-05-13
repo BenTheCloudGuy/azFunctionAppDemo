@@ -80,7 +80,12 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: terraform-outputs
+          path: ./terraform-outputs.json
           run-id: ${{ github.event.workflow_run.id }}
+
+
+      - name: Debug Terraform Outputs
+        run: cat terraform-outputs.json
 
       - name: Parse Terraform Outputs
         id: parse_outputs
