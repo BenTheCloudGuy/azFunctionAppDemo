@@ -1,7 +1,7 @@
-name: Deploy Infrastructure with Terraform
+name: Validate Terraform
 
 on:
-  push:
+  pull_request:
     branches:
       - main
     paths:
@@ -10,7 +10,7 @@ on:
 
 jobs:
   terraform:
-    name: Terraform Workflow
+    name: Verify Terraform Configurations
     runs-on: ubuntu-latest
 
     steps:
@@ -41,24 +41,6 @@ jobs:
 
       - name: Terraform Plan
         id: plan
-        run: terraform plan -input=false -var-file="terraform.tfvars" -out=tfplan
+        run: terraform plan -input=false -var-file="terraform.tfvars" 
         working-directory: infra/
 
-      - name: Save Plan Output
-        run: echo "TF_PLAN_PATH=tfplan" >> $GITHUB_ENV
-
-      - name: Terraform Apply
-        run: terraform apply -input=false -auto-approve $TF_PLAN_PATH
-        working-directory: infra/
-
-      - name: Collect Terraform Outputs and Save as Artifact
-        id: save_outputs
-        run: |
-          terraform output -json > terraform-outputs.json
-        working-directory: infra/
-
-      - name: Upload Terraform Outputs as Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: terraform-outputs
-          path: infra/terraform-outputs.json
