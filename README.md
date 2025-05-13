@@ -88,5 +88,7 @@ LINK: [FUNCTIONS](functions/README.md)
 
 README files and Markdown documentation play a crucial role in GitHub and GitOps workflows by clearly communicating project purpose, setup instructions, and usage guidelines. They serve as the primary entry point for developers and operations teams, ensuring consistency, reproducibility, and ease of collaboration. Well-maintained Markdown documentation helps streamline onboarding, reduces errors during deployments, and supports automation by providing structured, easily accessible information directly within the repository.
 
-> **NOTE**  
+> **NOTES**  
 > Learn More about Markdown: https://gist.github.com/IEvangelist/c67adb2c40210bdb810103462a01a246
+
+Show creating Token with Secrets and Artifacts permission and replacing in workflow..
