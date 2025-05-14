@@ -92,7 +92,8 @@ resource "azurerm_windows_function_app" "func_app" {
   https_only                    = true
   functions_extension_version   = "~4"
   identity {
-    type = "SystemAssigned"
+    type = "SystemAssigned, UserAssigned"
+    identity_ids = [azurerm_user_assigned_identity.identity.id] 
   }
   site_config {
     always_on                              = true

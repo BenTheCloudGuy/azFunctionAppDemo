@@ -1,12 +1,10 @@
 {
   "bindings": [
     {
-      "name": "InputBlob",
       "type": "eventGridTrigger",
-      "direction": "in",
-      "path": "filedrop/{name}",
-      "source": "EventGrid",
-      "connection": ""
+      "name": "eventGridEvent",
+      "direction": "in"
     }
-  ]
+  ],
+  "scriptFile": "run.ps1"
 }

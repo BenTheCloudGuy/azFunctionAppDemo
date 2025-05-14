@@ -67,7 +67,7 @@ jobs:
     needs: terraform
 
     env:
-      AZURE_FUNCTIONAPP_PACKAGE_PATH: 'functions/.'       
+      AZURE_FUNCTIONAPP_PACKAGE_PATH: '.'       
       FUNCTION_APP_PACKAGE_NAME: 'functionapp.zip'  
 
     steps:
@@ -108,10 +108,19 @@ jobs:
       - name: Zip Function App Contents
         run: |
           zip -r $FUNCTION_APP_PACKAGE_NAME $AZURE_FUNCTIONAPP_PACKAGE_PATH
+        working-directory: functions
 
       - name: Publish Azure Function
         run: |
           az functionapp deployment source config-zip \
-            --name $(jq -r '.FunctionAppName.value' terraform-outputs.json) \
-            --resource-group $(jq -r '.resource_group_name.value' terraform-outputs.json) \
+            --name $FUNCTION_APP_NAME \
+            --resource-group $FUNC_RESOURCE_GROUP \
             --src $FUNCTION_APP_PACKAGE_NAME
+        working-directory: functions
+
+      - name: Check Function App Status
+        run: |
+          az functionapp function list \
+            --name $FUNCTION_APP_NAME \
+            --resource-group $FUNC_RESOURCE_GROUP
+        working-directory: functions

@@ -27,3 +27,6 @@ terraform.rc
 
 # Ignore Terraform output files
 *terraform-outputs.json*
+
+# Ignore local testing of Workflow
+*functionapp.zip
