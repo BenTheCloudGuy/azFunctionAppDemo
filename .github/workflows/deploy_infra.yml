@@ -108,3 +108,10 @@ jobs:
       - name: Zip Function App Contents
         run: |
           zip -r $FUNCTION_APP_PACKAGE_NAME $AZURE_FUNCTIONAPP_PACKAGE_PATH
+
+      - name: Publish Azure Function
+        run: |
+          az functionapp deployment source config-zip \
+            --name $(jq -r '.FunctionAppName.value' terraform-outputs.json) \
+            --resource-group $(jq -r '.resource_group_name.value' terraform-outputs.json) \
+            --src $FUNCTION_APP_PACKAGE_NAME
