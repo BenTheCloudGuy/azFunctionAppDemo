@@ -88,6 +88,8 @@ jobs:
         run: |
            echo "FUNCTION_APP_NAME=$(jq -r '.FunctionAppName.value' terraform-outputs.json)" >> $GITHUB_ENV
            echo "FUNC_RESOURCE_GROUP=$(jq -r '.resource_group_name.value' terraform-outputs.json)" >> $GITHUB_ENV
+           FUNCTION_APP_NAME=$(jq -r '.FunctionAppName.value' terraform-outputs.json)
+           FUNC_RESOURCE_GROUP=$(jq -r '.resource_group_name.value' terraform-outputs.json)
 
       - name: Verify Variables
         shell: bash
