@@ -1,4 +1,4 @@
-name: Deploy FunctionApp 
+name: Deploy FunctionAppDemo
 
 on:
   push:
@@ -7,8 +7,8 @@ on:
 jobs:
 
 ## Deploy Infrastructure
-  terraform:
-    name: Deploy Terraform Infrastructure
+  terraform_validate:
+    name: Execute Terraform Validate
     runs-on: ubuntu-latest
 
     steps:
@@ -37,14 +37,23 @@ jobs:
         run: terraform fmt -check
         working-directory: infra/
 
+  terraform_plan:
+    name: Execute Terraform Plan
+    runs-on: ubuntu-latest
+    needs: terraform_validate
+
+    steps:
       - name: Terraform Plan
         id: plan
         run: terraform plan -input=false -var-file="terraform.tfvars" -out=tfplan
         working-directory: infra/
 
-      - name: Save Plan Output
-        run: echo "TF_PLAN_PATH=tfplan" >> $GITHUB_ENV
+  terraform_apply:
+    name: Execute Terraform Apply
+    runs-on: ubuntu-latest
+    needs: terraform_plan
 
+    steps:
       - name: Terraform Apply
         run: terraform apply -input=false -auto-approve $TF_PLAN_PATH
         working-directory: infra/
@@ -65,12 +74,11 @@ jobs:
   deploy_functions:
     name: Deploy Azure Functions
     runs-on: ubuntu-latest
-    needs: terraform
+    needs: terraform_apply
 
     env:
       AZURE_FUNCTIONAPP_PACKAGE_PATH: 'functions/.'       
       FUNCTION_APP_PACKAGE_NAME: 'functionapp.zip'  
-
 
     steps:
       - name: Checkout Code
@@ -93,7 +101,6 @@ jobs:
         run: |
            echo "FUNCTION_APP_NAME=$(jq -r '.FunctionAppName.value' terraform-outputs.json)" >> $GITHUB_ENV
            echo "FUNC_RESOURCE_GROUP=$(jq -r '.resource_group_name.value' terraform-outputs.json)" >> $GITHUB_ENV
-    
 
       - name: Log in to Azure
         uses: azure/login@v2
@@ -107,6 +114,6 @@ jobs:
       - name: Publish Azure Function
         run: |
           az functionapp deployment source config-zip \
-            --name $FUNCTION_APP_NAME \
-            --resource-group $FUNC_RESOURCE_GROUP \
+            --name $(jq -r '.FunctionAppName.value' terraform-outputs.json) \
+            --resource-group $(jq -r '.resource_group_name.value' terraform-outputs.json) \
             --src $FUNCTION_APP_PACKAGE_NAME
