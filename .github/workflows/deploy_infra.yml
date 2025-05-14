@@ -79,7 +79,6 @@ jobs:
           path: .
           run-id: ${{ github.event.workflow_run.id }}
 
-
       - name: Debug Terraform Outputs
         run: cat terraform-outputs.json
 
@@ -90,7 +89,15 @@ jobs:
            echo "FUNCTION_APP_NAME=$(jq -r '.FunctionAppName.value' terraform-outputs.json)" >> $GITHUB_ENV
            echo "FUNC_RESOURCE_GROUP=$(jq -r '.resource_group_name.value' terraform-outputs.json)" >> $GITHUB_ENV
 
-      - name: Log in to Azure
+      - name: Verify Variables
+        shell: bash
+        run: |
+          echo $FUNCTION_APP_NAME
+          echo $FUNC_RESOURCE_GROUP
+          echo $AZURE_FUNCTIONAPP_PACKAGE_PATH
+          echo $FUNCTION_APP_PACKAGE_NAME
+
+      - name: Log in to Azures
         uses: azure/login@v2
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
@@ -98,10 +105,3 @@ jobs:
       - name: Zip Function App Contents
         run: |
           zip -r $FUNCTION_APP_PACKAGE_NAME $AZURE_FUNCTIONAPP_PACKAGE_PATH
-
-      - name: Publish Azure Function
-        run: |
-          az functionapp deployment source config-zip \
-            --name $(jq -r '.FunctionAppName.value' terraform-outputs.json) \
-            --resource-group $(jq -r '.resource_group_name.value' terraform-outputs.json) \
-            --src $FUNCTION_APP_PACKAGE_NAME
