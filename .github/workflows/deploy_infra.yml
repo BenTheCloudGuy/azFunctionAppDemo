@@ -84,8 +84,9 @@ jobs:
       - name: Parse Terraform Outputs
         shell: bash
         run: |
-           FUNCTION_APP_NAME=$(cat terraform-outputs.json | jq -r '.FunctionAppName.value')
-           FUNC_RESOURCE_GROUP=$(cat terraform-outputs.json | jq -r '.resource_group_name.value')
+           awk 'BEGIN{p=0} /^\{/ {p=1} p' terraform-outputs.json > output.json
+           FUNCTION_APP_NAME=$(cat outputs.json | jq -r '.FunctionAppName.value')
+           FUNC_RESOURCE_GROUP=$(cat outputs.json | jq -r '.resource_group_name.value')
 
       - name: Verify Variables
         shell: bash
