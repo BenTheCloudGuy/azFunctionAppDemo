@@ -54,10 +54,6 @@ jobs:
           mv clean.json terraform-outputs.json
         working-directory: infra/
 
-      - name: Debug Terraform Outputs
-        run: cat terraform-outputs.json
-        working-directory: infra/
-
       - name: Upload Terraform Outputs as Artifact
         uses: actions/upload-artifact@v4
         with:
@@ -90,8 +86,8 @@ jobs:
       - name: Parse Terraform Outputs
         shell: bash
         run: |
-           awk 'BEGIN{p=0} /^\{/ {p=1} p' terraform-outputs.json > output.json
-           cat output.json
+          FUNCTION_APP_NAME=$(jq -r '.FunctionAppName.value' terraform-outputs.json)
+          FUNC_RESOURCE_GROUP=$(jq -r '.resource_group_name.value' terraform-outputs.json)
 
       - name: Verify Variables
         shell: bash
