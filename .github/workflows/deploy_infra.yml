@@ -7,8 +7,8 @@ on:
 jobs:
 
 ## Deploy Infrastructure
-  terraform_plan:
-    name: Execute Terraform Validate & Plan
+  terraform:
+    name: Execute Terraform Workflow
     runs-on: ubuntu-latest
 
     steps:
@@ -42,12 +42,6 @@ jobs:
         run: terraform plan -input=false -var-file="terraform.tfvars" -out=tfplan
         working-directory: infra/
 
-  terraform_apply:
-    name: Execute Terraform Apply
-    runs-on: ubuntu-latest
-    needs: terraform_plan
-
-    steps:
       - name: Checkout Code
         uses: actions/checkout@v3
 
@@ -76,7 +70,7 @@ jobs:
   deploy_functions:
     name: Deploy Azure Functions
     runs-on: ubuntu-latest
-    needs: terraform_apply
+    needs: terraform
 
     env:
       AZURE_FUNCTIONAPP_PACKAGE_PATH: 'functions/.'       
