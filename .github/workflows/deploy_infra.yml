@@ -86,8 +86,8 @@ jobs:
         id: parse_outputs
         shell: bash
         run: |
-           FUNCTION_APP_NAME=$(jq -r '.FunctionAppName.value' terraform-outputs.json)
-           FUNC_RESOURCE_GROUP=$(jq -r '.resource_group_name.value' terraform-outputs.json)
+           FUNCTION_APP_NAME=$(cat terraform-outputs.json | jq -r '.FunctionAppName.value')
+           FUNC_RESOURCE_GROUP=$(cat terraform-outputs.json | jq -r '.resource_group_name.value')
 
       - name: Verify Variables
         shell: bash
