@@ -91,15 +91,27 @@ jobs:
           echo "Hex dump (first 200 bytes):"
           head -c 200 terraform-outputs.json | hexdump -C
       
-      - name: Validate JSON Format
-        run: |
-          if ! jq empty terraform-outputs.json; then
-            echo "❌ Invalid JSON!"
-            exit 1
-          fi
-          
       - name: Parse Terraform Outputs
         id: parse_outputs
+        shell: bash
+        run: |
+          echo "Cleaning terraform-outputs.json..."
+          tr -cd '\11\12\15\40-\176' < terraform-outputs.json > cleaned.json
+
+          echo "Validating JSON..."
+          jq empty cleaned.json
+
+          FUNCTION_APP_NAME=$(jq -r '.FunctionAppName.value' cleaned.json)
+          FUNC_RESOURCE_GROUP=$(jq -r '.resource_group_name.value' cleaned.json)
+
+          echo "Parsed values:"
+          echo "FUNCTION_APP_NAME=$FUNCTION_APP_NAME"
+          echo "FUNC_RESOURCE_GROUP=$FUNC_RESOURCE_GROUP"
+
+          echo "FUNCTION_APP_NAME=$FUNCTION_APP_NAME" >> $GITHUB_ENV
+          echo "FUNC_RESOURCE_GROUP=$FUNC_RESOURCE_GROUP" >> $GITHUB_ENV
+
+      - name: Parse Terraform Outputs
         shell: bash
         run: |
            FUNCTION_APP_NAME=$(cat terraform-outputs.json | jq -r '.FunctionAppName.value')
