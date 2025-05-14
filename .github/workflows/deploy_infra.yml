@@ -77,11 +77,27 @@ jobs:
         with:
           name: terraform-outputs
           path: .
-          run-id: ${{ github.event.workflow_run.id }}
 
       - name: Debug Terraform Outputs
         run: cat terraform-outputs.json
 
+      - name: Inspect File After Artifact Download
+        run: |
+          echo "Working directory: $(pwd)"
+          echo "List files:"
+          ls -l
+          echo "First 10 lines of terraform-outputs.json:"
+          head -n 10 terraform-outputs.json | cat -v
+          echo "Hex dump (first 200 bytes):"
+          head -c 200 terraform-outputs.json | hexdump -C
+      
+      - name: Validate JSON Format
+        run: |
+          if ! jq empty terraform-outputs.json; then
+            echo "❌ Invalid JSON!"
+            exit 1
+          fi
+          
       - name: Parse Terraform Outputs
         id: parse_outputs
         shell: bash
