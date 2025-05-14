@@ -21,7 +21,7 @@ jobs:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
       
       - name: Set up Terraform
-        uses: hashicorp/setup-terraform@v1
+        uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: 1.11.4
 
@@ -43,13 +43,19 @@ jobs:
         working-directory: infra/
         
       - name: Terraform Apply
-        run: terraform apply -input=false -auto-approve $TF_PLAN_PATH
+        run: terraform apply -input=false -auto-approve tfplan
         working-directory: infra/
 
-      - name: Collect Terraform Outputs and Save as Artifact
-        id: save_outputs
+      - name: Save Clean Terraform Outputs
+        shell: bash
         run: |
-          terraform output -json > terraform-outputs.json 2>/dev/null
+          bash -c "terraform output -json" > terraform-outputs.json
+          awk 'BEGIN{p=0} /^\{/ {p=1} p' terraform-outputs.json > clean.json
+          mv clean.json terraform-outputs.json
+        working-directory: infra/
+
+      - name: Debug Terraform Outputs
+        run: cat terraform-outputs.json
         working-directory: infra/
 
       - name: Upload Terraform Outputs as Artifact
